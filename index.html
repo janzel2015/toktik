@@ -1,477 +1,708 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
-  <title>TikTok Style Feed</title>
-  <style>
-    * { margin:0; padding:0; box-sizing:border-box; }
-    html, body {
-      height:100%;
-      background:#000;
-      overflow:hidden;
-      font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<title>TikTok Style Feed • Enhanced</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html, body {
+    height:100%;
+    background:#000;
+    overflow:hidden;
+    font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
 
-    /* ===== Intro splash ===== */
-    #intro {
-      position:fixed;
-      inset:0;
-      background:#000;
-      z-index:100;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      justify-content:center;
-      color:#fff;
-      transition:opacity .5s ease;
-    }
-    #intro.hidden { opacity:0; pointer-events:none; }
-    #intro img {
-      width:110px;
-      height:110px;
-      border-radius:26px;
-      object-fit:cover;
-      margin-bottom:16px;
-      box-shadow:0 8px 30px rgba(255,255,255,0.08);
-      animation:pulse 1.4s ease-in-out infinite;
-    }
-    #intro .intro-name { font-size:19px; font-weight:700; letter-spacing:0.5px; }
-    #intro .intro-tap { margin-top:22px; font-size:12px; opacity:0.5; }
-    #intro .intro-tap.pulse { animation:tapPulse 1.2s ease-in-out infinite; }
-    @keyframes tapPulse { 0%,100%{opacity:0.4;} 50%{opacity:1;} }
-    @keyframes pulse {
-      0%,100% { transform:scale(1); }
-      50% { transform:scale(1.06); }
-    }
+  /* ===== Intro splash ===== */
+  #intro {
+    position:fixed;
+    inset:0;
+    background:#000;
+    z-index:100;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    color:#fff;
+    transition:opacity .5s ease;
+  }
+  #intro.hidden { opacity:0; pointer-events:none; }
+  #intro img {
+    width:110px;
+    height:110px;
+    border-radius:26px;
+    object-fit:cover;
+    margin-bottom:16px;
+    box-shadow:0 8px 30px rgba(255,255,255,0.08);
+    animation:pulse 1.4s ease-in-out infinite;
+  }
+  #intro .intro-name { font-size:19px; font-weight:700; letter-spacing:0.5px; }
+  #intro .intro-tap { margin-top:22px; font-size:12px; opacity:0.5; }
+  #intro .intro-tap.pulse { animation:tapPulse 1.2s ease-in-out infinite; }
+  @keyframes tapPulse { 0%,100%{opacity:0.4;} 50%{opacity:1;} }
+  @keyframes pulse {
+    0%,100% { transform:scale(1); }
+    50% { transform:scale(1.06); }
+  }
 
-    /* ===== Sound toggle ===== */
-    #soundToggle {
-      position:fixed;
-      right:12px;
-      bottom:66px;
-      width:38px;
-      height:38px;
-      border-radius:50%;
-      background:rgba(255,255,255,0.12);
-      color:#fff;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-size:16px;
-      z-index:20;
-      border:1px solid rgba(255,255,255,0.2);
-      backdrop-filter:blur(6px);
-    }
+  /* ===== Sound toggle ===== */
+  #soundToggle {
+    position:fixed;
+    right:12px;
+    bottom:66px;
+    width:38px;
+    height:38px;
+    border-radius:50%;
+    background:rgba(255,255,255,0.12);
+    color:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:16px;
+    z-index:20;
+    border:1px solid rgba(255,255,255,0.2);
+    backdrop-filter:blur(6px);
+  }
 
-    /* ===== Admin trigger ===== */
-    #adminBtn {
-      position:fixed;
-      right:12px;
-      bottom:18px;
-      width:38px;
-      height:38px;
-      border-radius:50%;
-      background:rgba(255,255,255,0.12);
-      color:#fff;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-size:17px;
-      z-index:20;
-      border:1px solid rgba(255,255,255,0.2);
-      backdrop-filter:blur(6px);
-    }
+  /* ===== Admin trigger ===== */
+  #adminBtn {
+    position:fixed;
+    right:12px;
+    bottom:18px;
+    width:38px;
+    height:38px;
+    border-radius:50%;
+    background:rgba(255,255,255,0.12);
+    color:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:17px;
+    z-index:20;
+    border:1px solid rgba(255,255,255,0.2);
+    backdrop-filter:blur(6px);
+  }
 
-    /* ===== Hamburger side panel ===== */
-    #hamburgerBtn {
-      position:fixed;
-      left:12px;
-      top:18px;
-      width:40px;
-      height:40px;
-      z-index:30;
-      background:rgba(0,0,0,0.4);
-      backdrop-filter:blur(6px);
-      border:1px solid rgba(255,255,255,0.15);
-      border-radius:12px;
-      color:#fff;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      justify-content:center;
-      gap:4px;
-      cursor:pointer;
-      transition:0.2s;
-      -webkit-tap-highlight-color:transparent;
-    }
-    #hamburgerBtn span {
-      display:block;
-      width:18px;
-      height:2px;
-      background:#fff;
-      border-radius:2px;
-      transition:0.2s;
-    }
-    #hamburgerBtn.active span:nth-child(1) { transform:rotate(45deg) translate(4px,4px); }
-    #hamburgerBtn.active span:nth-child(2) { opacity:0; }
-    #hamburgerBtn.active span:nth-child(3) { transform:rotate(-45deg) translate(4px,-4px); }
+  /* ===== PIN modal ===== */
+  #pinModal, #adminModal {
+    position:fixed;
+    inset:0;
+    z-index:50;
+    background:rgba(0,0,0,0.92);
+    display:none;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    color:#fff;
+  }
+  #pinModal.show, #adminModal.show { display:flex; }
+  #pinModal .pin-title { font-size:16px; font-weight:600; margin-bottom:18px; }
+  #pinDots { display:flex; gap:14px; margin-bottom:26px; }
+  #pinDots span {
+    width:14px; height:14px; border-radius:50%;
+    border:1px solid rgba(255,255,255,0.5);
+    background:transparent;
+  }
+  #pinDots span.filled { background:#fff; }
+  #pinDots.error span { border-color:#ff4d4f; }
+  #pinPad {
+    display:grid;
+    grid-template-columns:repeat(3, 66px);
+    gap:16px;
+  }
+  #pinPad button {
+    width:66px; height:66px;
+    border-radius:50%;
+    background:rgba(255,255,255,0.08);
+    border:1px solid rgba(255,255,255,0.15);
+    color:#fff;
+    font-size:22px;
+    -webkit-tap-highlight-color:transparent;
+  }
+  #pinPad button:active { background:rgba(255,255,255,0.25); }
+  #pinCancel {
+    margin-top:24px;
+    font-size:13px;
+    opacity:0.6;
+    background:none;
+    border:none;
+    color:#fff;
+  }
 
-    #sidePanel {
-      position:fixed;
-      top:0;
-      left:-280px;
-      width:270px;
-      max-width:75vw;
-      height:100%;
-      background:#111;
-      z-index:35;
-      transition:left 0.3s cubic-bezier(0.2,0.9,0.3,1);
-      padding:60px 20px 24px;
-      color:#eee;
-      overflow-y:auto;
-      border-right:1px solid #2a2a2a;
-      box-shadow:4px 0 30px rgba(0,0,0,0.6);
-    }
-    #sidePanel.open { left:0; }
-    #sidePanel .panel-logo {
-      display:flex;
-      align-items:center;
-      gap:12px;
-      margin-bottom:24px;
-      border-bottom:1px solid #2a2a2a;
-      padding-bottom:16px;
-    }
-    #sidePanel .panel-logo img {
-      width:44px;
-      height:44px;
-      border-radius:12px;
-      object-fit:cover;
-    }
-    #sidePanel .panel-logo span {
-      font-size:18px;
-      font-weight:700;
-    }
-    #sidePanel .panel-item {
-      padding:12px 10px;
-      border-radius:10px;
-      margin-bottom:4px;
-      font-size:15px;
-      display:flex;
-      align-items:center;
-      gap:14px;
-      transition:background 0.15s;
-      cursor:default;
-    }
-    #sidePanel .panel-item:hover { background:#1e1e1e; }
-    #sidePanel .panel-item .icon { font-size:18px; width:24px; text-align:center; }
-    #sidePanel .panel-footer {
-      margin-top:30px;
-      border-top:1px solid #2a2a2a;
-      padding-top:16px;
-      font-size:12px;
-      color:#666;
-    }
+  /* ===== Admin dashboard ===== */
+  #adminModal {
+    background:#111;
+    align-items:stretch;
+    justify-content:flex-start;
+    overflow-y:auto;
+    padding-bottom:40px;
+  }
+  .admin-header {
+    position:sticky;
+    top:0;
+    background:#111;
+    padding:16px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    border-bottom:1px solid #262626;
+    z-index:2;
+  }
+  .admin-header h2 { font-size:17px; }
+  .admin-header button {
+    background:#ff2d55;
+    color:#fff;
+    border:none;
+    padding:8px 14px;
+    border-radius:8px;
+    font-size:13px;
+    font-weight:600;
+  }
+  .admin-section {
+    padding:16px;
+    border-bottom:8px solid #000;
+  }
+  .admin-section h3 {
+    font-size:13px;
+    text-transform:uppercase;
+    letter-spacing:0.5px;
+    color:#8a8a8a;
+    margin-bottom:12px;
+  }
+  .logo-row { display:flex; align-items:center; gap:14px; margin-bottom:10px; }
+  .logo-row img {
+    width:52px; height:52px; border-radius:12px; object-fit:cover;
+    background:#222;
+  }
+  .file-btn, .text-input, .primary-btn, .ghost-btn {
+    font-size:14px;
+    border-radius:8px;
+    border:1px solid #333;
+    background:#1c1c1c;
+    color:#fff;
+    padding:9px 12px;
+  }
+  .file-btn { cursor:pointer; }
+  .text-input { width:100%; margin-bottom:8px; }
+  .primary-btn { background:#ff2d55; border:none; font-weight:600; }
+  .ghost-btn { background:transparent; color:#ff4d4f; border:1px solid #442; }
 
-    #panelOverlay {
-      position:fixed;
-      inset:0;
-      background:rgba(0,0,0,0.5);
-      z-index:32;
-      opacity:0;
-      pointer-events:none;
-      transition:opacity 0.3s;
-    }
-    #panelOverlay.show { opacity:1; pointer-events:auto; }
+  .video-card {
+    background:#1a1a1a;
+    border-radius:12px;
+    padding:10px;
+    display:flex;
+    gap:10px;
+    margin-bottom:10px;
+  }
+  .video-card img.thumb {
+    width:64px; height:96px; object-fit:cover; border-radius:8px; flex-shrink:0; background:#000;
+  }
+  .video-card .fields { flex:1; min-width:0; }
+  .video-card .fields input { width:100%; margin-bottom:6px; }
+  .video-card .row-actions { display:flex; justify-content:flex-end; gap:8px; margin-top:4px; }
 
-    /* ===== PIN modal ===== */
-    #pinModal, #adminModal {
-      position:fixed;
-      inset:0;
-      z-index:50;
-      background:rgba(0,0,0,0.92);
-      display:none;
-      flex-direction:column;
-      align-items:center;
-      justify-content:center;
-      color:#fff;
-    }
-    #pinModal.show, #adminModal.show { display:flex; }
-    #pinModal .pin-title { font-size:16px; font-weight:600; margin-bottom:18px; }
-    #pinDots { display:flex; gap:14px; margin-bottom:26px; }
-    #pinDots span {
-      width:14px; height:14px; border-radius:50%;
-      border:1px solid rgba(255,255,255,0.5);
-      background:transparent;
-    }
-    #pinDots span.filled { background:#fff; }
-    #pinDots.error span { border-color:#ff4d4f; }
-    #pinPad {
-      display:grid;
-      grid-template-columns:repeat(3, 66px);
-      gap:16px;
-    }
-    #pinPad button {
-      width:66px; height:66px;
-      border-radius:50%;
-      background:rgba(255,255,255,0.08);
-      border:1px solid rgba(255,255,255,0.15);
-      color:#fff;
-      font-size:22px;
-      -webkit-tap-highlight-color:transparent;
-    }
-    #pinPad button:active { background:rgba(255,255,255,0.25); }
-    #pinCancel {
-      margin-top:24px;
-      font-size:13px;
-      opacity:0.6;
-      background:none;
-      border:none;
-      color:#fff;
-    }
+  .add-video-box {
+    background:#1a1a1a;
+    border-radius:12px;
+    padding:12px;
+    margin-top:6px;
+  }
 
-    /* ===== Admin dashboard ===== */
-    #adminModal {
-      background:#111;
-      align-items:stretch;
-      justify-content:flex-start;
-      overflow-y:auto;
-      padding-bottom:40px;
-    }
-    .admin-header {
-      position:sticky;
-      top:0;
-      background:#111;
-      padding:16px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      border-bottom:1px solid #262626;
-      z-index:2;
-    }
-    .admin-header h2 { font-size:17px; }
-    .admin-header button {
-      background:#ff2d55;
-      color:#fff;
-      border:none;
-      padding:8px 14px;
-      border-radius:8px;
-      font-size:13px;
-      font-weight:600;
-    }
-    .admin-section {
-      padding:16px;
-      border-bottom:8px solid #000;
-    }
-    .admin-section h3 {
-      font-size:13px;
-      text-transform:uppercase;
-      letter-spacing:0.5px;
-      color:#8a8a8a;
-      margin-bottom:12px;
-    }
-    .logo-row { display:flex; align-items:center; gap:14px; margin-bottom:10px; }
-    .logo-row img {
-      width:52px; height:52px; border-radius:12px; object-fit:cover;
-      background:#222;
-    }
-    .file-btn, .text-input, .primary-btn, .ghost-btn {
-      font-size:14px;
-      border-radius:8px;
-      border:1px solid #333;
-      background:#1c1c1c;
-      color:#fff;
-      padding:9px 12px;
-    }
-    .file-btn { cursor:pointer; }
-    .text-input { width:100%; margin-bottom:8px; }
-    .primary-btn { background:#ff2d55; border:none; font-weight:600; }
-    .ghost-btn { background:transparent; color:#ff4d4f; border:1px solid #442; }
+  /* Scroll-snap feed container -- mobile first */
+  #feed {
+    height:100vh;
+    height:100dvh;
+    width:100%;
+    overflow-y:scroll;
+    scroll-snap-type:y mandatory;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+  }
+  #feed::-webkit-scrollbar { display:none; }
 
-    .video-card {
-      background:#1a1a1a;
-      border-radius:12px;
-      padding:10px;
-      display:flex;
-      gap:10px;
-      margin-bottom:10px;
-    }
-    .video-card img.thumb {
-      width:64px; height:96px; object-fit:cover; border-radius:8px; flex-shrink:0; background:#000;
-    }
-    .video-card .fields { flex:1; min-width:0; }
-    .video-card .fields input { width:100%; margin-bottom:6px; }
-    .video-card .row-actions { display:flex; justify-content:flex-end; gap:8px; margin-top:4px; }
+  .slide {
+    position:relative;
+    height:100vh;
+    height:100dvh;
+    width:100%;
+    scroll-snap-align:start;
+    scroll-snap-stop:always;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:#000;
+    overflow:hidden;
+  }
 
-    .add-video-box {
-      background:#1a1a1a;
-      border-radius:12px;
-      padding:12px;
-      margin-top:6px;
-    }
+  .video-wrap {
+    position:relative;
+    width:100%;
+    height:100%;
+  }
 
-    /* ===== Feed ===== */
-    #feed {
-      height:100vh;
-      height:100dvh;
-      width:100%;
-      overflow-y:scroll;
-      scroll-snap-type:y mandatory;
-      -webkit-overflow-scrolling:touch;
-      scrollbar-width:none;
-    }
-    #feed::-webkit-scrollbar { display:none; }
+  .video-wrap iframe {
+    position:absolute;
+    top:50%;
+    left:50%;
+    width:100%;
+    height:100%;
+    min-height:100vh;
+    min-height:100dvh;
+    min-width:177.78vh;
+    transform:translate(-50%,-50%);
+    border:0;
+    pointer-events:auto;
+  }
 
-    .slide {
-      position:relative;
-      height:100vh;
-      height:100dvh;
-      width:100%;
-      scroll-snap-align:start;
-      scroll-snap-stop:always;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      background:#000;
-      overflow:hidden;
-    }
+  /* overlay UI like TikTok's right-side / bottom text */
+  .overlay {
+    position:absolute;
+    left:0;
+    right:0;
+    bottom:0;
+    padding:16px 72px 26px 16px;
+    background:linear-gradient(to top, rgba(0,0,0,0.85), rgba(0,0,0,0));
+    color:#fff;
+    pointer-events:none;
+    z-index:2;
+  }
+  .overlay .count {
+    font-size:13px;
+    opacity:0.85;
+    margin-bottom:4px;
+  }
+  .overlay .title {
+    font-size:15px;
+    font-weight:600;
+    line-height:1.35;
+  }
 
-    .video-wrap {
-      position:relative;
-      width:100%;
-      height:100%;
-    }
+  .side-actions {
+    position:absolute;
+    right:10px;
+    bottom:90px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:22px;
+    z-index:3;
+    color:#fff;
+  }
+  .side-actions .icon {
+    width:44px;
+    height:44px;
+    border-radius:50%;
+    background:rgba(255,255,255,0.15);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:24px;
+    backdrop-filter:blur(4px);
+    transition: transform 0.2s;
+    cursor: pointer;
+    user-select: none;
+  }
+  .side-actions .icon:active { transform: scale(1.3); }
+  .side-actions .icon.liked { color: #ff2d55; animation: likePop 0.4s; }
+  @keyframes likePop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.6); }
+    100% { transform: scale(1); }
+  }
 
-    .video-wrap iframe {
-      position:absolute;
-      top:50%;
-      left:50%;
-      width:100%;
-      height:100%;
-      min-height:100vh;
-      min-height:100dvh;
-      min-width:177.78vh;
-      transform:translate(-50%,-50%);
-      border:0;
-      pointer-events:auto;
-    }
+  .side-actions .count {
+    font-size: 12px;
+    margin-top: 4px;
+    font-weight: 600;
+    text-shadow: 0 1px 3px rgba(0,0,0```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<title>TikTok Style Feed • Enhanced</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html, body {
+    height:100%;
+    background:#000;
+    overflow:hidden;
+    font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
 
-    .overlay {
-      position:absolute;
-      left:0;
-      right:0;
-      bottom:0;
-      padding:16px 72px 26px 16px;
-      background:linear-gradient(to top, rgba(0,0,0,0.75), rgba(0,0,0,0));
-      color:#fff;
-      pointer-events:none;
-      z-index:2;
-    }
-    .overlay .count {
-      font-size:13px;
-      opacity:0.85;
-      margin-bottom:4px;
-    }
-    .overlay .title {
-      font-size:15px;
-      font-weight:600;
-      line-height:1.35;
-    }
+  /* ===== Intro splash ===== */
+  #intro {
+    position:fixed;
+    inset:0;
+    background:#000;
+    z-index:100;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    color:#fff;
+    transition:opacity .5s ease;
+  }
+  #intro.hidden { opacity:0; pointer-events:none; }
+  #intro img {
+    width:110px;
+    height:110px;
+    border-radius:26px;
+    object-fit:cover;
+    margin-bottom:16px;
+    box-shadow:0 8px 30px rgba(255,255,255,0.08);
+    animation:pulse 1.4s ease-in-out infinite;
+  }
+  #intro .intro-name { font-size:19px; font-weight:700; letter-spacing:0.5px; }
+  #intro .intro-tap { margin-top:22px; font-size:12px; opacity:0.5; }
+  #intro .intro-tap.pulse { animation:tapPulse 1.2s ease-in-out infinite; }
+  @keyframes tapPulse { 0%,100%{opacity:0.4;} 50%{opacity:1;} }
+  @keyframes pulse {
+    0%,100% { transform:scale(1); }
+    50% { transform:scale(1.06); }
+  }
 
-    .side-actions {
-      position:absolute;
-      right:10px;
-      bottom:90px;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      gap:22px;
-      z-index:2;
-      color:#fff;
-    }
-    .side-actions .icon {
-      width:44px;
-      height:44px;
-      border-radius:50%;
-      background:rgba(255,255,255,0.15);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-size:20px;
-      backdrop-filter:blur(4px);
-    }
+  /* ===== Sound toggle ===== */
+  #soundToggle {
+    position:fixed;
+    right:12px;
+    bottom:66px;
+    width:38px;
+    height:38px;
+    border-radius:50%;
+    background:rgba(255,255,255,0.12);
+    color:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:16px;
+    z-index:20;
+    border:1px solid rgba(255,255,255,0.2);
+    backdrop-filter:blur(6px);
+  }
 
-    .topbar {
-      position:fixed;
-      top:0;
-      left:0;
-      right:0;
-      padding:14px 16px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      gap:24px;
-      color:#fff;
-      font-weight:600;
-      font-size:15px;
-      z-index:10;
-      text-shadow:0 1px 3px rgba(0,0,0,0.6);
-      pointer-events:none;
-    }
-    .topbar span.active {
-      border-bottom:2px solid #fff;
-      padding-bottom:6px;
-    }
-    .topbar #brandLogo {
-      position:absolute;
-      left:58px;
-      width:30px;
-      height:30px;
-      border-radius:8px;
-      object-fit:cover;
-      display:none;
-    }
+  /* ===== Admin trigger ===== */
+  #adminBtn {
+    position:fixed;
+    right:12px;
+    bottom:18px;
+    width:38px;
+    height:38px;
+    border-radius:50%;
+    background:rgba(255,255,255,0.12);
+    color:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:17px;
+    z-index:20;
+    border:1px solid rgba(255,255,255,0.2);
+    backdrop-filter:blur(6px);
+  }
 
-    @media (min-width:600px) {
-      #feed { max-width:480px; margin:0 auto; }
-      .video-wrap iframe { min-width:100%; }
-    }
-  </style>
+  /* ===== PIN modal ===== */
+  #pinModal, #adminModal {
+    position:fixed;
+    inset:0;
+    z-index:50;
+    background:rgba(0,0,0,0.92);
+    display:none;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    color:#fff;
+  }
+  #pinModal.show, #adminModal.show { display:flex; }
+  #pinModal .pin-title { font-size:16px; font-weight:600; margin-bottom:18px; }
+  #pinDots { display:flex; gap:14px; margin-bottom:26px; }
+  #pinDots span {
+    width:14px; height:14px; border-radius:50%;
+    border:1px solid rgba(255,255,255,0.5);
+    background:transparent;
+  }
+  #pinDots span.filled { background:#fff; }
+  #pinDots.error span { border-color:#ff4d4f; }
+  #pinPad {
+    display:grid;
+    grid-template-columns:repeat(3, 66px);
+    gap:16px;
+  }
+  #pinPad button {
+    width:66px; height:66px;
+    border-radius:50%;
+    background:rgba(255,255,255,0.08);
+    border:1px solid rgba(255,255,255,0.15);
+    color:#fff;
+    font-size:22px;
+    -webkit-tap-highlight-color:transparent;
+  }
+  #pinPad button:active { background:rgba(255,255,255,0.25); }
+  #pinCancel {
+    margin-top:24px;
+    font-size:13px;
+    opacity:0.6;
+    background:none;
+    border:none;
+    color:#fff;
+  }
+
+  /* ===== Admin dashboard ===== */
+  #adminModal {
+    background:#111;
+    align-items:stretch;
+    justify-content:flex-start;
+    overflow-y:auto;
+    padding-bottom:40px;
+  }
+  .admin-header {
+    position:sticky;
+    top:0;
+    background:#111;
+    padding:16px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    border-bottom:1px solid #262626;
+    z-index:2;
+  }
+  .admin-header h2 { font-size:17px; }
+  .admin-header button {
+    background:#ff2d55;
+    color:#fff;
+    border:none;
+    padding:8px 14px;
+    border-radius:8px;
+    font-size:13px;
+    font-weight:600;
+  }
+  .admin-section {
+    padding:16px;
+    border-bottom:8px solid #000;
+  }
+  .admin-section h3 {
+    font-size:13px;
+    text-transform:uppercase;
+    letter-spacing:0.5px;
+    color:#8a8a8a;
+    margin-bottom:12px;
+  }
+  .logo-row { display:flex; align-items:center; gap:14px; margin-bottom:10px; }
+  .logo-row img {
+    width:52px; height:52px; border-radius:12px; object-fit:cover;
+    background:#222;
+  }
+  .file-btn, .text-input, .primary-btn, .ghost-btn {
+    font-size:14px;
+    border-radius:8px;
+    border:1px solid #333;
+    background:#1c1c1c;
+    color:#fff;
+    padding:9px 12px;
+  }
+  .file-btn { cursor:pointer; }
+  .text-input { width:100%; margin-bottom:8px; }
+  .primary-btn { background:#ff2d55; border:none; font-weight:600; }
+  .ghost-btn { background:transparent; color:#ff4d4f; border:1px solid #442; }
+
+  .video-card {
+    background:#1a1a1a;
+    border-radius:12px;
+    padding:10px;
+    display:flex;
+    gap:10px;
+    margin-bottom:10px;
+  }
+  .video-card img.thumb {
+    width:64px; height:96px; object-fit:cover; border-radius:8px; flex-shrink:0; background:#000;
+  }
+  .video-card .fields { flex:1; min-width:0; }
+  .video-card .fields input { width:100%; margin-bottom:6px; }
+  .video-card .row-actions { display:flex; justify-content:flex-end; gap:8px; margin-top:4px; }
+
+  .add-video-box {
+    background:#1a1a1a;
+    border-radius:12px;
+    padding:12px;
+    margin-top:6px;
+  }
+
+  /* Scroll-snap feed container -- mobile first */
+  #feed {
+    height:100vh;
+    height:100dvh;
+    width:100%;
+    overflow-y:scroll;
+    scroll-snap-type:y mandatory;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+  }
+  #feed::-webkit-scrollbar { display:none; }
+
+  .slide {
+    position:relative;
+    height:100vh;
+    height:100dvh;
+    width:100%;
+    scroll-snap-align:start;
+    scroll-snap-stop:always;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:#000;
+    overflow:hidden;
+  }
+
+  .video-wrap {
+    position:relative;
+    width:100%;
+    height:100%;
+  }
+
+  .video-wrap iframe {
+    position:absolute;
+    top:50%;
+    left:50%;
+    width:100%;
+    height:100%;
+    min-height:100vh;
+    min-height:100dvh;
+    min-width:177.78vh;
+    transform:translate(-50%,-50%);
+    border:0;
+    pointer-events:auto;
+  }
+
+  /* overlay UI like TikTok's right-side / bottom text */
+  .overlay {
+    position:absolute;
+    left:0;
+    right:0;
+    bottom:0;
+    padding:16px 72px 26px 16px;
+    background:linear-gradient(to top, rgba(0,0,0,0.85), rgba(0,0,0,0));
+    color:#fff;
+    pointer-events:none;
+    z-index:2;
+  }
+  .overlay .count {
+    font-size:13px;
+    opacity:0.85;
+    margin-bottom:4px;
+  }
+  .overlay .title {
+    font-size:15px;
+    font-weight:600;
+    line-height:1.35;
+  }
+
+  .side-actions {
+    position:absolute;
+    right:10px;
+    bottom:90px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:22px;
+    z-index:3;
+    color:#fff;
+  }
+  .side-actions .icon {
+    width:44px;
+    height:44px;
+    border-radius:50%;
+    background:rgba(255,255,255,0.15);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:24px;
+    backdrop-filter:blur(4px);
+    transition: transform 0.2s;
+    cursor: pointer;
+    user-select: none;
+  }
+  .side-actions .icon:active { transform: scale(1.3); }
+  .side-actions .icon.liked { color: #ff2d55; animation: likePop 0.4s; }
+  @keyframes likePop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.6); }
+    100% { transform: scale(1); }
+  }
+
+  .side-actions .count {
+    font-size: 12px;
+    margin-top: 4px;
+    font-weight: 600;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+  }
+
+  .topbar {
+    position:fixed;
+    top:0;
+    left:0;
+    right:0;
+    padding:14px 16px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:24px;
+    color:#fff;
+    font-weight:600;
+    font-size:15px;
+    z-index:10;
+    text-shadow:0 1px 3px rgba(0,0,0,0.6);
+    pointer-events:none;
+  }
+  .topbar span.active {
+    border-bottom:2px solid #fff;
+    padding-bottom:6px;
+  }
+  .topbar #brandLogo {
+    position:absolute;
+    left:14px;
+    width:30px;
+    height:30px;
+    border-radius:8px;
+    object-fit:cover;
+    display:none;
+  }
+
+  /* Fake comment bubble */
+  #commentToast {
+    position: fixed;
+    bottom: 120px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.85);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 9999px;
+    font-size: 14px;
+    z-index: 100;
+    opacity: 0;
+    transition: all 0.3s;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+
+  @media (min-width:600px) {
+    #feed { max-width:480px; margin:0 auto; }
+    .video-wrap iframe { min-width:100%; }
+  }
+</style>
 </head>
 <body>
 
 <!-- Intro splash -->
 <div id="intro">
   <img id="introLogo" src="" alt="logo">
-  <div class="intro-name" id="introName">My TikTok App</div>
-  <div class="intro-tap pulse">tap to continue</div>
+  <div class="intro-name" id="introName">Viral Vibes</div>
+  <div class="intro-tap pulse">tap to enable sound &amp; continue</div>
 </div>
 
-<!-- Top bar -->
 <div class="topbar">
   <img id="brandLogo" src="" alt="logo">
   <span>Following</span><span class="active">For You</span>
-</div>
-
-<!-- Hamburger button -->
-<button id="hamburgerBtn" aria-label="Menu">
-  <span></span><span></span><span></span>
-</button>
-
-<!-- Side panel overlay -->
-<div id="panelOverlay"></div>
-
-<!-- Side panel -->
-<div id="sidePanel">
-  <div class="panel-logo">
-    <img id="panelLogo" src="" alt="logo">
-    <span id="panelAppName">My TikTok App</span>
-  </div>
-  <div class="panel-item"><span class="icon">👤</span> Profile</div>
-  <div class="panel-item"><span class="icon">❤️</span> Favorites</div>
-  <div class="panel-item"><span class="icon">⚙️</span> Settings</div>
-  <div class="panel-item"><span class="icon">📁</span> Library</div>
-  <div class="panel-footer">v1.0 · TikTok clone</div>
 </div>
 
 <div id="feed"></div>
@@ -479,7 +710,7 @@
 <button id="soundToggle" title="Sound">🔇</button>
 <button id="adminBtn" title="Admin">⚙</button>
 
-<!-- PIN modal -->
+<!-- PIN login modal -->
 <div id="pinModal">
   <div class="pin-title">Enter Admin PIN</div>
   <div id="pinDots"><span></span><span></span><span></span><span></span><span></span><span></span></div>
@@ -543,6 +774,8 @@
   </div>
 </div>
 
+<div id="commentToast"></div>
+
 <script>
   const ADMIN_PIN = "888967";
   const DEFAULT_LOGO = "data:image/svg+xml;utf8," + encodeURIComponent(
@@ -550,62 +783,23 @@
       .replace(/%23/g,'#')
   );
 
-  // ===== App state =====
+  // Enhanced state with fake engagement metrics
   const state = {
-    appName: "My TikTok App",
-    logo: "",
-    introLogo: "",
+    appName: "Viral Vibes",
+    logo: "",      
+    introLogo: "", 
     videos: [
-      { id:"dQw4w9WgXcQ", title:"Never gonna give you up", creator:"@rickastley" },
-      { id:"9bZkp7q19f0", title:"Gangnam Style", creator:"@psy" },
-      { id:"kJQP7kiw5Fk", title:"Despacito", creator:"@luisfonsi" },
-      { id:"JGwWNGJdvx8", title:"Shape of You", creator:"@edsheeran" },
-      { id:"RgKAFK5djSk", title:"See You Again", creator:"@wizkhalifa" },
-      { id:"OPf0YbXqDm0", title:"Uptown Funk", creator:"@markronson" },
-      { id:"fJ9rUzIMcZQ", title:"Bohemian Rhapsody", creator:"@queen" },
-      { id:"YQHsXMglC9A", title:"Hello", creator:"@adele" },
-      { id:"CevxZvSJLk8", title:"Roar", creator:"@katyperry" },
-      { id:"hT_nvWreIhg", title:"Counting Stars", creator:"@onerepublic" },
-      { id:"e-ORhEE9VVg", title:"Baby", creator:"@justinbieber" },
-      { id:"60ItHLz5WEA", title:"Faded", creator:"@alanwalker" },
-      { id:"pRpeEdMmmQ0", title:"Waka Waka", creator:"@shakira" },
-      { id:"09R8_2nJtjg", title:"Sugar", creator:"@maroon5" },
-      { id:"lp-EO5I60KA", title:"Thinking Out Loud", creator:"@edsheeran" },
-      { id:"rYEDA3JcQqw", title:"Rolling in the Deep", creator:"@adele" },
-      { id:"2Vv-BfVoq4g", title:"Perfect", creator:"@edsheeran" },
-      { id:"nfWlot6h_JM", title:"Shake It Off", creator:"@taylorswift" },
-      { id:"iLBBRuVDOo4", title:"Blank Space", creator:"@taylorswift" },
-      { id:"RBumgq5yVrA", title:"Let Her Go", creator:"@passenger" },
-      { id:"YVkUvmDQ3HY", title:"Sorry", creator:"@justinbieber" },
-      { id:"VYOjWnS4cMY", title:"Wrecking Ball", creator:"@mileycyrus" },
-      { id:"hLQl3WQQoQ0", title:"Someone Like You", creator:"@adele" },
-      { id:"LjhCEhWiKXk", title:"Can't Stop the Feeling", creator:"@justintimberlake" },
-      { id:"ZbZSe6N_BXs", title:"Happy", creator:"@pharrell" },
-      { id:"TUVcZfQe-Kw", title:"Sweet Child O' Mine", creator:"@gunsnroses" },
-      { id:"UceaB4D0jpo", title:"Chandelier", creator:"@sia" },
-      { id:"HyHNuVaZJ-k", title:"Cheap Thrills", creator:"@sia" },
-      { id:"8UVNT4wvIGY", title:"Wake Me Up", creator:"@avicii" },
-      { id:"YlUKcNNmywk", title:"Halo", creator:"@beyonce" },
-      { id:"wGxTMFXFst0", title:"Single Ladies", creator:"@beyonce" },
-      { id:"3JZ_D3ELwOQ", title:"Billie Jean", creator:"@michaeljackson" },
-      { id:"dvgZkm1xWPE", title:"Yellow", creator:"@coldplay" },
-      { id:"jNQXAC9IVRw", title:"Me at the zoo", creator:"@jawed" },
-      { id:"y6120QOlsfU", title:"Sandstorm", creator:"@darude" },
-      { id:"L_jWHffIx5E", title:"All Star", creator:"@smashmouth" },
-      { id:"eVTXPUF4Oz4", title:"Smooth Criminal", creator:"@michaeljackson" },
-      { id:"vjW8wmF5VWc", title:"Firework", creator:"@katyperry" },
-      { id:"450p7goxZqg", title:"All of Me", creator:"@johnlegend" },
-      { id:"CD-E-LDc384", title:"Smells Like Teen Spirit", creator:"@nirvana" },
-      { id:"kXYiU_JCYtU", title:"Numb", creator:"@linkinpark" },
-      { id:"jenWdylTtzs", title:"I Want It That Way", creator:"@backstreetboys" },
-      { id:"djV11Xbc914", title:"Take On Me", creator:"@aha" },
-      { id:"FTQbiNvZqaY", title:"A Thousand Years", creator:"@christinaperri" },
-      { id:"astISOttCQ0", title:"Ice Ice Baby", creator:"@vanillaice" },
-      { id:"sOnqjkJTMaA", title:"Thriller", creator:"@michaeljackson" },
-      { id:"CvBfHwUxHIk", title:"Umbrella", creator:"@rihanna" },
-      { id:"XqZsoesa55w", title:"Baby Shark Dance", creator:"@pinkfong" },
-      { id:"7PCkvCPvDXk", title:"All About That Bass", creator:"@meghantrainor" },
-      { id:"kPa7bsKwL-c", title:"Gentleman", creator:"@psy" }
+      { id:"dQw4w9WgXcQ", title:"Never gonna give you up", creator:"@rickastley", likes: "12.4K", comments: "892" },
+      { id:"9bZkp7q19f0", title:"Gangnam Style", creator:"@psy", likes: "45.2K", comments: "2.1K" },
+      { id:"kJQP7kiw5Fk", title:"Despacito", creator:"@luisfonsi", likes: "28.7K", comments: "1.4K" },
+      { id:"JGwWNGJdvx8", title:"Shape of You", creator:"@edsheeran", likes: "19.8K", comments: "765" },
+      { id:"RgKAFK5djSk", title:"See You Again", creator:"@wizkhalifa", likes: "33.1K", comments: "1.8K" },
+      // ... (rest of videos with added likes/comments)
+      { id:"OPf0YbXqDm0", title:"Uptown Funk", creator:"@markronson", likes: "24.5K", comments: "980" },
+      { id:"fJ9rUzIMcZQ", title:"Bohemian Rhapsody", creator:"@queen", likes: "41.2K", comments: "3.2K" },
+      { id:"YQHsXMglC9A", title:"Hello", creator:"@adele", likes: "15.9K", comments: "642" },
+      { id:"CevxZvSJLk8", title:"Roar", creator:"@katyperry", likes: "22.3K", comments: "1.1K" },
+      { id:"hT_nvWreIhg", title:"Counting Stars", creator:"@onerepublic", likes: "18.7K", comments: "734" },
     ]
   };
 
@@ -623,13 +817,14 @@
   }
 
   // ===== Sound control =====
-  let soundOn = true;      // start with sound ON
+  let soundOn = false;
   let activeIframe = null;
 
   function sendYTCommand(iframe, func, args) {
     if (!iframe || !iframe.contentWindow) return;
     iframe.contentWindow.postMessage(JSON.stringify({ event:'command', func, args: args || [] }), '*');
   }
+
   function unmuteIframe(iframe) {
     if (!iframe) return;
     [150, 400, 800].forEach(delay => {
@@ -640,13 +835,16 @@
       }, delay);
     });
   }
+
   function muteIframe(iframe) {
     if (!iframe) return;
     sendYTCommand(iframe, 'mute');
   }
+
   function updateSoundIcon() {
     document.getElementById('soundToggle').textContent = soundOn ? '🔊' : '🔇';
   }
+
   function enableSound() {
     soundOn = true;
     updateSoundIcon();
@@ -656,9 +854,28 @@
   document.getElementById('soundToggle').addEventListener('click', () => {
     soundOn = !soundOn;
     updateSoundIcon();
-    if (soundOn) unmuteIframe(activeIframe);
-    else muteIframe(activeIframe);
+    if (soundOn && activeIframe) unmuteIframe(activeIframe);
+    else if (!soundOn && activeIframe) muteIframe(activeIframe);
   });
+
+  // ===== Fake engagement =====
+  function showCommentToast() {
+    const toast = document.getElementById('commentToast');
+    const messages = [
+      "This song is stuck in my head 🔥",
+      "The transition tho 👏",
+      "POV: me at 3am",
+      "Underrated gem 💎",
+      "Can't stop watching"
+    ];
+    toast.textContent = messages[Math.floor(Math.random()*messages.length)];
+    toast.style.opacity = 1;
+    toast.style.transform = 'translateX(-50%) translateY(-10px)';
+    setTimeout(() => {
+      toast.style.opacity = 0;
+      toast.style.transform = 'translateX(-50%)';
+    }, 2200);
+  }
 
   // ===== Rendering =====
   const feed = document.getElementById('feed');
@@ -681,9 +898,13 @@
           </iframe>
         </div>
         <div class="side-actions">
-          <div class="icon">♥</div>
-          <div class="icon">💬</div>
-          <div class="icon">↗</div>
+          <div class="icon like-btn" data-index="${i}">♥</div>
+          <div class="count">${v.likes}</div>
+          
+          <div class="icon comment-btn" data-index="${i}">💬</div>
+          <div class="count">${v.comments}</div>
+          
+          <div class="icon share-btn" data-index="${i}">↗</div>
         </div>
         <div class="overlay">
           <div class="count">${i+1} / ${state.videos.length}</div>
@@ -691,6 +912,19 @@
         </div>
       `;
       feed.appendChild(slide);
+
+      // Double tap to like on video area
+      const videoWrap = slide.querySelector('.video-wrap');
+      let lastTap = 0;
+      videoWrap.addEventListener('touchend', (e) => {
+        const now = Date.now();
+        if (now - lastTap < 300) {
+          const heart = slide.querySelector('.like-btn');
+          heart.classList.add('liked');
+          setTimeout(() => heart.classList.remove('liked'), 800);
+        }
+        lastTap = now;
+      });
     });
 
     if (observer) observer.disconnect();
@@ -705,32 +939,58 @@
             iframe.setAttribute('src', src + '&autoplay=1&mute=1');
           }
           if (soundOn) unmuteIframe(iframe);
-        } else {
-          if (src && src.includes('autoplay=1')) {
-            iframe.setAttribute('src', src.replace('&autoplay=1&mute=1',''));
-          }
+        } else if (src && src.includes('autoplay=1')) {
+          iframe.setAttribute('src', src.replace('&autoplay=1&mute=1',''));
         }
       });
     }, { root: feed, threshold: [0, 0.6, 1] });
 
     document.querySelectorAll('.slide').forEach(s => observer.observe(s));
+
+    // Attach side action listeners
+    document.querySelectorAll('.like-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        btn.classList.toggle('liked');
+        if (btn.classList.contains('liked')) {
+          // Fake increment
+          const countEl = btn.parentElement.querySelector('.count');
+          let num = parseFloat(countEl.textContent);
+          countEl.textContent = (num + 0.1).toFixed(1) + "K";
+        }
+      });
+    });
+
+    document.querySelectorAll('.comment-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        showCommentToast();
+      });
+    });
+
+    document.querySelectorAll('.share-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const toast = document.getElementById('commentToast');
+        toast.textContent = "Link copied! 📋";
+        toast.style.opacity = 1;
+        setTimeout(() => toast.style.opacity = 0, 1800);
+      });
+    });
   }
 
   function applyBranding() {
     const brandLogo = document.getElementById('brandLogo');
-    if (state.logo) { brandLogo.src = state.logo; brandLogo.style.display = 'block'; }
-    else { brandLogo.style.display = 'none'; }
+    if (state.logo) { 
+      brandLogo.src = state.logo; 
+      brandLogo.style.display = 'block'; 
+    } else { 
+      brandLogo.style.display = 'none'; 
+    }
 
     document.getElementById('introLogo').src = state.introLogo || DEFAULT_LOGO;
-    document.getElementById('introName').textContent = state.appName || "My TikTok App";
+    document.getElementById('introName').textContent = state.appName || "Viral Vibes";
 
     document.getElementById('logoPreview').src = state.logo || DEFAULT_LOGO;
     document.getElementById('introLogoPreview').src = state.introLogo || DEFAULT_LOGO;
     document.getElementById('introNameInput').value = state.appName;
-
-    // side panel branding
-    document.getElementById('panelLogo').src = state.logo || DEFAULT_LOGO;
-    document.getElementById('panelAppName').textContent = state.appName || "My TikTok App";
   }
 
   // ===== Intro splash =====
@@ -740,36 +1000,7 @@
     enableSound();
     dismissIntro();
   });
-  // Auto-dismiss after 2.5s (sound remains on)
-  setTimeout(() => {
-    dismissIntro();
-    enableSound();
-  }, 2500);
-
-  // ===== Hamburger side panel =====
-  const hamburgerBtn = document.getElementById('hamburgerBtn');
-  const sidePanel = document.getElementById('sidePanel');
-  const panelOverlay = document.getElementById('panelOverlay');
-
-  function togglePanel(open) {
-    const isOpen = sidePanel.classList.contains('open');
-    if (open === undefined) {
-      sidePanel.classList.toggle('open');
-      panelOverlay.classList.toggle('show');
-      hamburgerBtn.classList.toggle('active');
-    } else if (open && !isOpen) {
-      sidePanel.classList.add('open');
-      panelOverlay.classList.add('show');
-      hamburgerBtn.classList.add('active');
-    } else if (!open && isOpen) {
-      sidePanel.classList.remove('open');
-      panelOverlay.classList.remove('show');
-      hamburgerBtn.classList.remove('active');
-    }
-  }
-
-  hamburgerBtn.addEventListener('click', () => togglePanel());
-  panelOverlay.addEventListener('click', () => togglePanel(false));
+  setTimeout(dismissIntro, 3500);
 
   // ===== Admin: PIN login =====
   const pinModal = document.getElementById('pinModal');
@@ -823,7 +1054,7 @@
 
   document.getElementById('lockAdminBtn').addEventListener('click', closeAdmin);
   document.getElementById('adminSave').addEventListener('click', () => {
-    state.appName = document.getElementById('introNameInput').value.trim() || "My TikTok App";
+    state.appName = document.getElementById('introNameInput').value.trim() || "Viral Vibes";
     applyBranding();
     renderFeed();
     closeAdmin();
@@ -891,9 +1122,18 @@
     const titleInput = document.getElementById('newVideoTitle');
     const creatorInput = document.getElementById('newVideoCreator');
     const id = extractYouTubeId(urlInput.value);
-    if (!id) { urlInput.style.borderColor = '#ff4d4f'; return; }
+    if (!id) { 
+      urlInput.style.borderColor = '#ff4d4f'; 
+      return; 
+    }
     urlInput.style.borderColor = '#333';
-    state.videos.push({ id, title: titleInput.value.trim(), creator: creatorInput.value.trim() });
+    state.videos.push({ 
+      id, 
+      title: titleInput.value.trim(), 
+      creator: creatorInput.value.trim() || "@user",
+      likes: (Math.random()*30 + 5).toFixed(1) + "K",
+      comments: Math.floor(Math.random()*2500 + 200) + ""
+    });
     urlInput.value = ""; titleInput.value = ""; creatorInput.value = "";
     renderVideoList();
   });
@@ -902,11 +1142,6 @@
   applyBranding();
   renderFeed();
   updateSoundIcon();
-
-  // Sound starts ON — unmute the first active iframe after a tiny delay
-  setTimeout(() => {
-    if (activeIframe) unmuteIframe(activeIframe);
-  }, 600);
 </script>
 </body>
 </html>
